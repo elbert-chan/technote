@@ -33,6 +33,16 @@
 如果公钥钥匙串被篡改，是不是就给了第三方伪装成你钥匙串中某个公钥主人的机会？钥匙串的本质是公钥与公钥主人的映射关系，而这个信息又是允许公开的。那完全可以把这个信息的管理职责交给一个信任的机构——证书中心（CA）。
 公钥主人去 CA 为自己的公钥做认证，CA 用自己的私钥对公钥和所属人的一些相关信息一起加密，生成 **数字证书**。以后发送方在发送信息（**消息体** + **签名**）时只需要把证书一同发送给接收方，接收方使用 CA 的公钥解密证书，得到 **发送方公钥**，再通过发送方公钥可对签名验签，即证明发送方身份。同时得到 **摘要** 可进一步验证消息是否被篡改。
 
+### 5. 如何签署 CA 证书？
+
+1. 生成 **CAPrivateKey** (**CA 私钥**)，同时它可以生成 **CAPublicKey** (**CA 公钥**)；
+2. 准备 **CATemplate** (**CA 证书模版**)；
+3. 创建 **CACertDER** (**DER 格式编码的证书**) `CACertDER = CATemplate + ParentTemplate + CAPublicKey + CAPrivateKey`；
+4. 对 CACertDER 和 CAPrivateKey 分别进行 **PEM 编码** 得到 **CAPem** 和 **CAPrivateKeyPem** 以便对其他证书进行签名；
+
+作为签署其他证书的根证书，它在第三步中 CATemplate 与 ParentTemplate 都使用自己的 CA 证书模版，即**自签名**。
+
 ## 参考：
-https://www.wosign.com/News/news_2018101101.htm
-https://doc.uniontech.com/docs/16q8Mwj97eUnyRk7
+- [https://www.wosign.com/News/news_2018101101.htm](https://www.wosign.com/News/news_2018101101.htm)
+- [https://doc.uniontech.com/docs/16q8Mwj97eUnyRk7](https://doc.uniontech.com/docs/16q8Mwj97eUnyRk7)
+- [create sign x509 certificates in golang](https://medium.com/@shaneutt/create-sign-x509-certificates-in-golang-8ac4ae49f903)
